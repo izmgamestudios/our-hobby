@@ -125,7 +125,7 @@ function HobbyCard({ hobby: h, open, onToggle }: { hobby: UserHobby; open: boole
             ))}
             <button
               onClick={() => confirm(`"${h.name}" silinsin mi? Tüm kayıtları da silinir.`) && dispatch({ type: 'remove', id: h.id })}
-              className="ml-auto text-red-600"
+              className="ml-auto shrink-0 text-red-600"
             >
               Sil
             </button>
@@ -153,8 +153,8 @@ function HobbyCard({ hobby: h, open, onToggle }: { hobby: UserHobby; open: boole
             <form onSubmit={onSession} className="flex flex-wrap gap-2">
               <input name="date" type="date" defaultValue={toDay()} max={toDay()} className="rounded-lg border border-slate-300 px-2 py-1.5 text-sm" />
               <input name="minutes" type="number" min={1} max={1440} placeholder="dk" required className="w-20 rounded-lg border border-slate-300 px-2 py-1.5 text-sm" />
-              <input name="note" placeholder="Not (opsiyonel)" maxLength={200} className="min-w-0 flex-1 rounded-lg border border-slate-300 px-3 py-1.5 text-sm" />
-              <button className="rounded-lg bg-indigo-600 px-3 text-sm text-white">Kaydet</button>
+              <input name="note" placeholder="Not (opsiyonel)" maxLength={200} className="order-last min-w-0 basis-full rounded-lg border border-slate-300 px-3 py-1.5 text-sm sm:order-none sm:basis-0 sm:flex-1" />
+              <button className="rounded-lg bg-indigo-600 px-3 py-1.5 text-sm text-white">Kaydet</button>
             </form>
             <ul className="mt-2 divide-y divide-slate-100 text-sm">
               {h.sessions.slice(0, 10).map((s) => (
