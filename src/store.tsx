@@ -4,6 +4,7 @@ import { loadState, saveState } from './lib/storage'
 import type { AppState, CatalogHobby, Status, UserHobby } from './types'
 
 type Action =
+  | { type: 'replace'; state: AppState }
   | { type: 'add'; hobby: UserHobby }
   | { type: 'remove'; id: string }
   | { type: 'setStatus'; id: string; status: Status }
@@ -21,6 +22,8 @@ function patch(state: AppState, id: string, fn: (h: UserHobby) => UserHobby): Ap
 
 function reducer(state: AppState, a: Action): AppState {
   switch (a.type) {
+    case 'replace':
+      return a.state
     case 'add':
       return { hobbies: [a.hobby, ...state.hobbies] }
     case 'remove':

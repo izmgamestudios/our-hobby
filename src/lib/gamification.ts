@@ -62,6 +62,11 @@ export interface Badge {
 }
 
 export function badges(state: AppState): Badge[] {
+  const all = allBadges(state)
+  return [...all.filter((b) => b.earned), ...all.filter((b) => !b.earned)]
+}
+
+function allBadges(state: AppState): Badge[] {
   const sessions = state.hobbies.flatMap((h) => h.sessions)
   const minutes = sessions.reduce((s, x) => s + x.minutes, 0)
   const goals = state.hobbies.flatMap((h) => h.goals).filter((g) => g.done).length

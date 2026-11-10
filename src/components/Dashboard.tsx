@@ -1,4 +1,6 @@
 // src/components/Dashboard.tsx
+import { useRef } from 'react'
+import { exportJson, parseImport } from '../lib/storage'
 import { badges, currentStreak, levelInfo, minutesByDay, totalXp } from '../lib/gamification'
 import { lastNDays, toDay } from '../lib/date'
 import { useStore } from '../store'
@@ -10,7 +12,8 @@ interface Props {
 const DAY_LABELS = ['Pz', 'Pt', 'Sa', 'Ça', 'Pe', 'Cu', 'Ct']
 
 export default function Dashboard({ goTo }: Props) {
-  const { state } = useStore()
+  const { state, dispatch } = useStore()
+  const fileRef = useRef<HTMLInputElement>(null)
   const xp = totalXp(state)
   const lvl = levelInfo(xp)
   const streak = currentStreak(state)
@@ -20,6 +23,21 @@ export default function Dashboard({ goTo }: Props) {
   const maxDay = Math.max(30, ...week.map((d) => perDay.get(d) ?? 0))
   const today = toDay()
   const active = state.hobbies.filter((h) => h.status === 'active')
+
+  function download() {
+    const url = URL.createObjectURL(new Blob([exportJson(state)], { type: 'application/json' }))
+    const a = Object.assign(document.createElement('a'), { href: url, download: `hobilerim-${today}.json` })
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  async function upload(file: File | undefined) {
+    if (!file) return
+    const parsed = parseImport(await file.text())
+    if (!parsed) return alert('Geçersiz yedek dosyası.')
+    if (confirm(`${parsed.hobbies.length} hobi yüklenecek. Mevcut verilerin üzerine yazılır, devam edilsin mi?`))
+      dispatch({ type: 'replace', state: parsed })
+  }
 
   if (state.hobbies.length === 0) {
     return (
@@ -52,6 +70,35 @@ export default function Dashboard({ goTo }: Props) {
           <div className="h-full bg-indigo-500" style={{ width: `${(lvl.current / lvl.needed) * 100}%` }} />
         </div>
       </section>
+
+      {active.length > 0 && (
+        <section className="rounded-2xl bg-white p-4 shadow-sm">
+          <h2 className="mb-2 text-sm font-semibold">Bugün hızlı kayıt</h2>
+          <ul className="space-y-2">
+            {active.map((h) => {
+              const todayMin = h.sessions.filter((s) => s.date === today).reduce((t, s) => t + s.minutes, 0)
+              return (
+                <li key={h.id} className="flex items-center gap-2 text-sm">
+                  <span className="text-xl">{h.emoji}</span>
+                  <span className="min-w-0 flex-1 truncate">
+                    {h.name}
+                    {todayMin > 0 && <span className="ml-1 text-xs text-emerald-600">✓ {todayMin} dk</span>}
+                  </span>
+                  {[15, 30, 60].map((m) => (
+                    <button
+                      key={m}
+                      onClick={() => dispatch({ type: 'addSession', id: h.id, date: today, minutes: m, note: '' })}
+                      className="rounded-lg bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-700 active:bg-indigo-100"
+                    >
+                      +{m}
+                    </button>
+                  ))}
+                </li>
+              )
+            })}
+          </ul>
+        </section>
+      )}
 
       <section className="rounded-2xl bg-white p-4 shadow-sm">
         <h2 className="mb-3 text-sm font-semibold">Son 7 gün (dakika)</h2>
@@ -86,11 +133,11 @@ export default function Dashboard({ goTo }: Props) {
         </div>
       </section>
 
-      {active.length > 0 && (
-        <button onClick={() => goTo('mine')} className="w-full rounded-xl bg-indigo-600 py-3 text-sm font-medium text-white">
-          Bugün hangi hobiyle ilgilendin? ({active.length} aktif hobi)
-        </button>
-      )}
+      <div className="flex items-center justify-center gap-4 pt-2 text-xs text-slate-500">
+        <button onClick={download} className="underline">Yedeği indir</button>
+        <button onClick={() => fileRef.current?.click()} className="underline">Yedekten yükle</button>
+        <input ref={fileRef} type="file" accept="application/json" hidden onChange={(e) => { void upload(e.target.files?.[0]); e.target.value = '' }} />
+      </div>
     </div>
   )
 }
