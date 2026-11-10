@@ -6,7 +6,7 @@ Kişisel hobi yönetme + hobi keşfetme uygulaması (MVP).
 |---|---|
 | Panel | XP/seviye, günlük seri, haftalık grafik, rozetler |
 | Hobilerim | Aktif / denemek istediğim / ara verdim; hedefler; seans (süre) kaydı |
-| Keşfet | 28 hobilik katalog; arama, kategori, bütçe filtresi |
+| Keşfet | 27 hobilik katalog; arama, kategori, bütçe filtresi |
 | Bana Hobi Bul | 5 soruluk test → skorlanmış top 5 öneri |
 
 ## Çalıştırma
